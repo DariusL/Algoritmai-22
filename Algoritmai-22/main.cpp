@@ -33,7 +33,7 @@ int main()
 	for (auto &word : words)
 		stream << word << ' ';
 	stream << endl << endl;
-	Output(words, stream, breaks, words.size() - 1);
+	Output(words, stream, breaks, words.size());
 	system("pause");
 	return 0;
 }
@@ -65,31 +65,31 @@ vector<string> RandomData(uint diffWords, uint wordCount, uint maxLength)
 
 vector<uint> ComputeBreaks(const vector<string> &words, uint m)
 {
-	vector<vector<uint>> extras, lc;
+	vector<vector<int>> extras, lc;
 	vector<uint> p, c;
 	const uint max = numeric_limits<uint>::max();
-	uint n = words.size();
-	for (uint i = 0; i < n; i++)
+	const uint n = words.size();
+	for (uint i = 0; i <= n; i++)
 	{
 		extras.emplace_back();
 		lc.emplace_back();
-		for (uint j = 0; j < n; j++)
+		for (uint j = 0; j <= n; j++)
 		{
 			extras[i].emplace_back();
 			lc[i].emplace_back();
 		}
 	}
-	for (uint i = 0; i < n; i++)
+	for (uint i = 1; i <= n; i++)
 	{
-		extras[i][i] = m - words[i].length();
-		for (uint j = i + 1; j < n; j++)
+		extras[i][i] = m - words[i - 1].length();
+		for (uint j = i + 1; j <= n; j++)
 		{
-			extras[i][j] = extras[i][j - 1] - words[i].length() -1;
+			extras[i][j] = extras[i][j - 1] - words[j - 1].length() - 1;
 		}
 	}
-	for (uint i = 0; i < n; i++)
+	for (uint i = 1; i <= n; i++)
 	{
-		for (uint j = i; j < n; j++)
+		for (uint j = i; j <= n; j++)
 		{
 			if (extras[i][j] < 0)
 			{
@@ -109,15 +109,16 @@ vector<uint> ComputeBreaks(const vector<string> &words, uint m)
 		}
 	}
 	c.push_back(0);
-	for (uint j = 0; j < n; j++)
+	p.emplace_back();
+	for (uint j = 1; j <= n; j++)
 	{
 		c.push_back(max);
 		p.emplace_back();
-		for (uint i = 0; i < j; i++)
+		for (uint i = 1; i <= j; i++)
 		{
-			if (c[i] + lc[i][j] < c[j+1])
+			if (c[i-1] + lc[i][j] < c[j])
 			{
-				c[j+1] = c[i] + lc[i][j];
+				c[j] = c[i-1] + lc[i][j];
 				p[j] = i;
 			}
 		}
