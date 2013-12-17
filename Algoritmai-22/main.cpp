@@ -28,12 +28,12 @@ inline uint Pow<0>(uint a)
 int main()
 {
 	auto &stream = cout;
-	auto words = RandomData(3, 10, 7);
-	auto breaks = ComputeBreaks(words, 10);
+	auto words = RandomData(10, 50, 7);
+	auto breaks = ComputeBreaks(words, 15);
 	for (auto &word : words)
 		stream << word << ' ';
 	stream << endl << endl;
-	Output(words, stream, breaks, words.size());
+	Output(words, stream, breaks, words.size() - 1);
 	system("pause");
 	return 0;
 }
@@ -65,31 +65,32 @@ vector<string> RandomData(uint diffWords, uint wordCount, uint maxLength)
 
 vector<uint> ComputeBreaks(const vector<string> &words, uint m)
 {
-	vector<vector<int>> extras, lc;
+	vector<vector<int>> extras;
+	vector<vector<uint>> lc;
 	vector<uint> p, c;
-	const uint max = numeric_limits<uint>::max();
+	const int max = numeric_limits<int>::max();
 	const uint n = words.size();
-	for (uint i = 0; i <= n; i++)
+	for (uint i = 0; i < n; i++)
 	{
 		extras.emplace_back();
 		lc.emplace_back();
-		for (uint j = 0; j <= n; j++)
+		for (uint j = 0; j < n; j++)
 		{
 			extras[i].emplace_back();
 			lc[i].emplace_back();
 		}
 	}
-	for (uint i = 1; i <= n; i++)
+	for (uint i = 0; i < n; i++)
 	{
-		extras[i][i] = m - words[i - 1].length();
-		for (uint j = i + 1; j <= n; j++)
+		extras[i][i] = m - words[i].length();
+		for (uint j = i + 1; j < n; j++)
 		{
-			extras[i][j] = extras[i][j - 1] - words[j - 1].length() - 1;
+			extras[i][j] = extras[i][j - 1] - words[j].length() - 1;
 		}
 	}
-	for (uint i = 1; i <= n; i++)
+	for (uint i = 0; i < n; i++)
 	{
-		for (uint j = i; j <= n; j++)
+		for (uint j = i; j < n; j++)
 		{
 			if (extras[i][j] < 0)
 			{
@@ -97,7 +98,7 @@ vector<uint> ComputeBreaks(const vector<string> &words, uint m)
 			}
 			else
 			{
-				if (j == n && extras[i][j] >= 0)
+				if (j == n - 1 && extras[i][j] >= 0)
 				{
 					lc[i][j] = 0;
 				}
@@ -109,16 +110,15 @@ vector<uint> ComputeBreaks(const vector<string> &words, uint m)
 		}
 	}
 	c.push_back(0);
-	p.emplace_back();
-	for (uint j = 1; j <= n; j++)
+	for (uint j = 0; j < n; j++)
 	{
 		c.push_back(max);
 		p.emplace_back();
-		for (uint i = 1; i <= j; i++)
+		for (uint i = 0; i <= j; i++)
 		{
-			if (c[i-1] + lc[i][j] < c[j])
+			if (c[i] + lc[i][j] < c[j+1])
 			{
-				c[j] = c[i-1] + lc[i][j];
+				c[j+1] = c[i] + lc[i][j];
 				p[j] = i;
 			}
 		}
